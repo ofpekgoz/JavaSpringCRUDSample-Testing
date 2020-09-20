@@ -82,7 +82,7 @@ class StudentServiceImplTest {
 	}
 
 	@Test
-	public void should_throw_exception_when_updated_user_doesnt_exist() {
+	public void should_throw_exception_when_updated_student_doesnt_exist() {
 		Student student = new Student(1L, "Test-Name1", "Test-Surname1");
 		studentRepository.save(student);
 		studentRepository.flush();
