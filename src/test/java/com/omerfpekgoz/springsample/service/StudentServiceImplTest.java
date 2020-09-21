@@ -1,11 +1,15 @@
 package com.omerfpekgoz.springsample.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.anyLong;
+
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.omerfpekgoz.springsample.model.Student;
 import com.omerfpekgoz.springsample.repositories.StudentRepository;
+
+import jdk.jshell.spi.ExecutionControl.UserException;
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceImplTest {
@@ -111,7 +117,17 @@ class StudentServiceImplTest {
 	public void should_throw_exception_when_deleted_student_doesnt_exist() {
 
 		Student student = new Student(1L, "Test-Name", "Test-Surname");
-		given(studentRepository.findById(anyLong())).willReturn(Optional.ofNullable(null));
+		studentRepository.save(student);
+		studentRepository.flush();
+		
 		studentService.deleteStudent(student.getId());
+		studentRepository.flush();
+
+		when(studentRepository.findById(student.getId())).thenThrow(NullPointerException.class);
+
+		assertThrows(NullPointerException.class, () -> {
+			studentService.deleteStudent(student.getId());
+		});
+		
 	}
 }
